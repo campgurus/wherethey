@@ -4,7 +4,6 @@ ruby '2.0.0'
 
 gem 'rails', '4.0.0'
 gem 'bootstrap-sass', '2.3.2.0'
-gem 'rails_12factor'
 
 group :development, :test do
   gem 'sqlite3', '1.3.8'
@@ -28,5 +27,6 @@ group :doc do
 end
 
 group :production do
+  gem 'rails_12factor'
   gem 'pg', '0.15.1'
 end
