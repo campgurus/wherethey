@@ -28,7 +28,11 @@ describe "Authentication" do
 
     describe "with valid information" do
       let(:user) { FactoryGirl.create(:user) }
-      before { sign_in user }
+      before do
+        fill_in "Email", with: user.email.upcase
+        fill_in "Password", with: user.password
+        click_button "Sign in"
+      end
 
       it { should have_title(user.name) }
       it { should have_link('Users',       href: users_path) }
@@ -81,6 +85,16 @@ describe "Authentication" do
           before { visit users_path }
           it { should have_title('Sign in') }
         end
+
+        describe "visiting the following page" do
+          before { visit following_user_path(user) }
+          it { should have_title('Sign in') }
+        end
+
+        describe "visiting the followers page" do
+          before { visit followers_user_path(user) }
+          it { should have_title('Sign in') }
+        end
       end
       
       describe "in the Microposts controller" do
@@ -95,6 +109,18 @@ describe "Authentication" do
           specify { expect(response).to redirect_to(signin_path) }
         end
       end
+
+      describe "in the Relationships controller" do
+        describe "submitting to the create action" do
+          before { post relationships_path }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
+
+        describe "submitting to the destroy action" do
+          before { delete relationship_path(1) }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
+      end
     end
 
     describe "as wrong user" do
@@ -105,12 +131,12 @@ describe "Authentication" do
       describe "submitting a GET request to the Users#edit action" do
         before { get edit_user_path(wrong_user) }
         specify { expect(response.body).not_to match(full_title('Edit user')) }
-        specify { expect(response).to redirect_to(root_url) }
+        specify { expect(response).to redirect_to(root_path) }
       end
 
       describe "submitting a PATCH request to the Users#update action" do
         before { patch user_path(wrong_user) }
-        specify { expect(response).to redirect_to(root_url) }
+        specify { expect(response).to redirect_to(root_path) }
       end
     end
 
@@ -122,7 +148,7 @@ describe "Authentication" do
 
       describe "submitting a DELETE request to the Users#destroy action" do
         before { delete user_path(user) }
-        specify { expect(response).to redirect_to(root_url) }
+        specify { expect(response).to redirect_to(root_path) }
       end
     end
   end
